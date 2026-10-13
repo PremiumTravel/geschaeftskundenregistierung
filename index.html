@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Beratungsgespräch vereinbaren | Premium Travel Reiseagentur</title>
+<style>
+  :root {
+    --blue: #1f418e;
+    --blue-dark: #16306a;
+    --blue-tint: #eaf0fb;
+    --ink: #14213d;
+    --muted: #5b6784;
+    --line: #cdd6e6;
+    --bg: #f4f7fc;
+    --error: #b3261e;
+    --ok: #1e7a4f;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: transparent;
+    color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+  .wrap { max-width: 780px; margin: 0 auto; padding: 24px 16px 32px; }
+
+  /* Kopf */
+  .intro { margin-bottom: 24px; }
+  .eyebrow { color: var(--blue); font-weight: 600; font-size: 15px; margin: 0 0 6px; }
+  h1 { font-size: clamp(26px, 4.4vw, 36px); line-height: 1.15; margin: 0 0 10px; font-weight: 700; letter-spacing: -0.01em; }
+  .intro p.sub { margin: 0; color: var(--muted); max-width: 56ch; }
+
+  /* Karte */
+  .card {
+    background: #fff;
+    border: 1px solid #e1e7f2;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(20, 33, 61, 0.06);
+    padding: 32px;
+  }
+
+  /* Fortschritt */
+  .steps[hidden] { display: none; }
+  a.nowrap { white-space: nowrap; }
+  .steps { list-style: none; display: flex; margin: 0 0 28px; padding: 0; counter-reset: s; }
+  .steps li { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; position: relative; text-align: center; color: var(--muted); font-size: 14px; }
+  .steps li::before {
+    content: ""; position: absolute; top: 15px; left: -50%; width: 100%; height: 2px; background: var(--line); z-index: 0;
+  }
+  .steps li:first-child::before { display: none; }
+  .steps li.done::before, .steps li.current::before { background: var(--blue); }
+  .dot {
+    position: relative; z-index: 1; width: 32px; height: 32px; border-radius: 50%;
+    display: grid; place-items: center; font-weight: 600; font-size: 14px;
+    background: #fff; border: 2px solid var(--line); color: var(--muted);
+    transition: background .2s, border-color .2s, color .2s;
+  }
+  .steps li.current .dot { border-color: var(--blue); color: var(--blue); }
+  .steps li.done .dot { background: var(--blue); border-color: var(--blue); color: #fff; }
+  .steps li.current, .steps li.done { color: var(--ink); }
+  .steps li.current .lbl { font-weight: 600; }
+
+  /* Schritte */
+  h2 { font-size: 22px; margin: 0 0 4px; font-weight: 700; outline: none; }
+  .lead { margin: 0 0 22px; color: var(--muted); }
+  .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+  .full { grid-column: 1 / -1; }
+  .step[hidden] { display: none; }
+
+  label, .legend { display: block; font-weight: 600; font-size: 15px; margin-bottom: 6px; }
+  .req { color: var(--blue); margin-left: 2px; }
+  .opt { font-weight: 400; color: var(--muted); }
+  input[type="text"], input[type="email"], input[type="tel"], select, textarea {
+    width: 100%; min-height: 48px; padding: 11px 14px;
+    font: inherit; color: var(--ink); background: #fff;
+    border: 1px solid var(--line); border-radius: 6px;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  textarea { min-height: 120px; resize: vertical; }
+  select {
+    appearance: none; -webkit-appearance: none; padding-right: 42px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1 1.5l6 6 6-6' fill='none' stroke='%231f418e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 15px center;
+  }
+  input:hover, select:hover, textarea:hover { border-color: #9fb0d0; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(31, 65, 142, .18); }
+  .hint { margin: 6px 0 0; font-size: 13.5px; color: var(--muted); }
+  .err { margin: 6px 0 0; font-size: 13.5px; color: var(--error); min-height: 0; }
+  .err:empty { display: none; }
+  .field.invalid input, .field.invalid select, .field.invalid textarea { border-color: var(--error); }
+  .field.invalid input:focus, .field.invalid select:focus, .field.invalid textarea:focus { box-shadow: 0 0 0 3px rgba(179, 38, 30, .18); }
+
+  /* Auswahl-Chips */
+  .chips { display: flex; flex-wrap: wrap; gap: 10px; }
+  .chip { position: relative; }
+  .chip input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+  .chip span {
+    display: inline-flex; align-items: center; padding: 10px 16px; font-size: 15px;
+    border: 1px solid var(--line); border-radius: 999px; background: #fff; color: var(--ink);
+    transition: background .15s, border-color .15s, color .15s;
+  }
+  .chip:hover span { border-color: var(--blue); }
+  .chip input:checked + span { background: var(--blue); border-color: var(--blue); color: #fff; }
+  .chip input:focus-visible + span { outline: 3px solid rgba(31, 65, 142, .35); outline-offset: 2px; }
+
+  /* Einwilligung */
+  .consent { display: flex; gap: 12px; align-items: flex-start; padding: 16px; background: var(--bg); border-radius: 8px; }
+  .consent input { width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--blue); flex: none; }
+  .consent label { font-weight: 400; margin: 0; font-size: 14.5px; }
+  .consent.demo { background: var(--blue-tint); border: 1px solid #c9d7f2; }
+  .consent.demo label strong { color: var(--blue); }
+  .field.invalid .consent { outline: 2px solid var(--error); }
+
+  /* Links mit Unterstreichung */
+  a.ul {
+    color: var(--blue); text-decoration: none; font-weight: 600;
+    background-image: linear-gradient(currentColor, currentColor);
+    background-repeat: no-repeat; background-position: 0 100%; background-size: 100% 1px;
+    transition: background-size .25s ease;
+  }
+  a.ul:hover, a.ul:focus-visible { background-size: 100% 2px; }
+
+  /* Buttons */
+  .actions { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-top: 28px; flex-wrap: wrap; }
+  .btn {
+    font: inherit; font-weight: 600; cursor: pointer; border: 0; border-radius: 6px;
+    min-height: 48px; padding: 12px 28px; background: var(--blue); color: #fff;
+    transition: background .15s, transform .1s;
+  }
+  .btn:hover { background: var(--blue-dark); }
+  .btn:active { transform: translateY(1px); }
+  .btn:focus-visible { outline: 3px solid rgba(31, 65, 142, .4); outline-offset: 2px; }
+  .btn[disabled] { opacity: .65; cursor: progress; }
+  .btn-text {
+    font: inherit; font-weight: 600; color: var(--blue); background: none; border: 0; cursor: pointer; padding: 12px 4px;
+    background-image: linear-gradient(currentColor, currentColor); background-repeat: no-repeat;
+    background-position: 0 calc(100% - 10px); background-size: 0 1px; transition: background-size .25s ease;
+  }
+  .btn-text:hover, .btn-text:focus-visible { background-size: 100% 1px; outline: none; }
+  .actions .spacer { flex: 1; }
+  .fineprint { margin: 14px 0 0; font-size: 13px; color: var(--muted); }
+  .banner { margin: 18px 0 0; padding: 12px 14px; border-left: 4px solid var(--error); background: #fdeceb; color: #6d1510; border-radius: 4px; font-size: 14.5px; }
+  .banner[hidden] { display: none; }
+
+  /* Erfolg */
+  .success { text-align: center; padding: 16px 0 8px; }
+  .success[hidden], #s-demo[hidden] { display: none; }
+  .tick { width: 64px; height: 64px; margin: 0 auto 16px; border-radius: 50%; background: var(--blue-tint); color: var(--blue); display: grid; place-items: center; font-size: 30px; font-weight: 700; }
+  .success h2 { font-size: 26px; }
+  .success p strong { color: var(--ink); }
+  .success p { color: var(--muted); max-width: 52ch; margin: 8px auto 0; }
+
+  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+  @media (max-width: 599px) {
+    .card { padding: 20px 16px; }
+    .grid { grid-template-columns: 1fr; gap: 18px; }
+    .steps li { font-size: 12.5px; }
+    .actions { flex-direction: column-reverse; align-items: stretch; }
+    .actions .spacer { display: none; }
+    .btn { width: 100%; }
+    .btn-text { text-align: center; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap" id="wrap">
+
+  <header class="intro">
+    <p class="eyebrow">Für Geschäftskunden</p>
+    <h1>Ihr unverbindliches Beratungsgespräch</h1>
+    <p class="sub">Erzählen Sie uns in drei kurzen Schritten etwas über Ihr Unternehmen und Ihre Geschäftsreisen. Wir melden uns innerhalb von 1 bis 3 Werktagen persönlich bei Ihnen, um einen Termin abzustimmen.</p>
+  </header>
+
+  <div class="card">
+    <ol class="steps" id="stepper" aria-label="Fortschritt">
+      <li><span class="dot">1</span><span class="lbl">Unternehmen</span></li>
+      <li><span class="dot">2</span><span class="lbl">Ansprechpartner</span></li>
+      <li><span class="dot">3</span><span class="lbl">Reisebedarf</span></li>
+    </ol>
+
+    <form id="form" novalidate autocomplete="on">
+      <input type="hidden" name="Interessen" value="">
+      <div class="hp" aria-hidden="true"><label>Bitte leer lassen<input type="text" name="_gotcha" tabindex="-1" autocomplete="off"></label></div>
+
+      <!-- Schritt 1 -->
+      <section class="step" aria-labelledby="h-0">
+        <h2 id="h-0" tabindex="-1">Ihr Unternehmen</h2>
+        <p class="lead">Pflichtfelder sind mit * markiert.</p>
+        <div class="grid">
+          <div class="field full">
+            <label for="firma">Firmenname <span class="req" aria-hidden="true">*</span></label>
+            <input id="firma" name="Firmenname" type="text" autocomplete="organization" maxlength="120" required>
+            <p class="err" id="err-firma"></p>
+          </div>
+          <div class="field">
+            <label for="rechtsform">Rechtsform <span class="opt">(optional)</span></label>
+            <select id="rechtsform" name="Rechtsform">
+              <option value="">Bitte wählen</option>
+              <option>GmbH</option><option>GmbH &amp; Co. KG</option><option>AG</option><option>UG (haftungsbeschränkt)</option>
+              <option>KG</option><option>OHG</option><option>GbR</option><option>e. K.</option><option>Einzelunternehmen</option>
+              <option>Verein / Stiftung</option><option>Öffentliche Einrichtung</option><option>Sonstige</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="branche">Branche <span class="opt">(optional)</span></label>
+            <select id="branche" name="Branche">
+              <option value="">Bitte wählen</option>
+              <option>Industrie / Produktion</option><option>Handel</option><option>Bau / Handwerk</option>
+              <option>IT / Software</option><option>Beratung / Dienstleistung</option><option>Logistik / Transport</option>
+              <option>Finanzen / Versicherung</option><option>Gesundheit / Soziales</option>
+              <option>Bildung / Öffentlicher Dienst</option><option>Sonstige</option>
+            </select>
+          </div>
+          <div class="field full">
+            <label for="strasse">Straße und Hausnummer <span class="req" aria-hidden="true">*</span></label>
+            <input id="strasse" name="Strasse" type="text" autocomplete="street-address" maxlength="120" required>
+            <p class="err" id="err-strasse"></p>
+          </div>
+          <div class="field">
+            <label for="plz">Postleitzahl <span class="req" aria-hidden="true">*</span></label>
+            <input id="plz" name="PLZ" type="text" inputmode="numeric" autocomplete="postal-code" maxlength="5" pattern="[0-9]{5}" data-msg="Bitte eine fünfstellige Postleitzahl angeben." required>
+            <p class="err" id="err-plz"></p>
+          </div>
+          <div class="field">
+            <label for="ort">Ort <span class="req" aria-hidden="true">*</span></label>
+            <input id="ort" name="Ort" type="text" autocomplete="address-level2" maxlength="80" required>
+            <p class="err" id="err-ort"></p>
+          </div>
+          <div class="field">
+            <label for="mitarbeiter">Mitarbeitende <span class="req" aria-hidden="true">*</span></label>
+            <select id="mitarbeiter" name="Mitarbeitende" required>
+              <option value="">Bitte wählen</option>
+              <option>1 bis 9</option><option>10 bis 49</option><option>50 bis 249</option><option>250 bis 999</option><option>1.000 und mehr</option>
+            </select>
+            <p class="err" id="err-mitarbeiter"></p>
+          </div>
+          <div class="field">
+            <label for="web">Webseite <span class="opt">(optional)</span></label>
+            <input id="web" name="Webseite" type="text" inputmode="url" autocomplete="url" maxlength="120" placeholder="www.beispiel.de" pattern="[^\s]+\.[^\s]{2,}" data-msg="Bitte eine gültige Webadresse angeben.">
+            <p class="err" id="err-web"></p>
+          </div>
+        </div>
+        <div class="actions">
+          <span class="spacer"></span>
+          <button type="button" class="btn" data-next>Weiter</button>
+        </div>
+      </section>
+
+      <!-- Schritt 2 -->
+      <section class="step" aria-labelledby="h-1" hidden>
+        <h2 id="h-1" tabindex="-1">Ihr Ansprechpartner</h2>
+        <p class="lead">An wen dürfen wir uns wenden?</p>
+        <div class="grid">
+          <div class="field">
+            <label for="anrede">Anrede <span class="req" aria-hidden="true">*</span></label>
+            <select id="anrede" name="Anrede" autocomplete="honorific-prefix" required>
+              <option value="">Bitte wählen</option>
+              <option>Frau</option><option>Herr</option><option>Keine Angabe</option>
+            </select>
+            <p class="err" id="err-anrede"></p>
+          </div>
+          <div class="field">
+            <label for="position">Position im Unternehmen <span class="req" aria-hidden="true">*</span></label>
+            <input id="position" name="Position" type="text" autocomplete="organization-title" maxlength="80" required>
+            <p class="err" id="err-position"></p>
+          </div>
+          <div class="field">
+            <label for="vorname">Vorname <span class="req" aria-hidden="true">*</span></label>
+            <input id="vorname" name="Vorname" type="text" autocomplete="given-name" maxlength="60" required>
+            <p class="err" id="err-vorname"></p>
+          </div>
+          <div class="field">
+            <label for="nachname">Nachname <span class="req" aria-hidden="true">*</span></label>
+            <input id="nachname" name="Nachname" type="text" autocomplete="family-name" maxlength="60" required>
+            <p class="err" id="err-nachname"></p>
+          </div>
+          <div class="field">
+            <label for="email">E-Mail <span class="req" aria-hidden="true">*</span></label>
+            <input id="email" name="email" type="email" autocomplete="email" maxlength="120" required>
+            <p class="err" id="err-email"></p>
+          </div>
+          <div class="field">
+            <label for="tel">Telefon <span class="opt">(optional)</span></label>
+            <input id="tel" name="Telefon" type="tel" autocomplete="tel" maxlength="30" pattern="[0-9+()\/\-\s]{6,}" data-msg="Bitte eine gültige Telefonnummer angeben.">
+            <p class="err" id="err-tel"></p>
+          </div>
+          <div class="field">
+            <label for="kontakt">Bevorzugter Kontaktweg <span class="opt">(optional)</span></label>
+            <select id="kontakt" name="Kontaktweg">
+              <option value="">Keine Präferenz</option>
+              <option>E-Mail</option><option>Telefon</option><option>Videocall</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="zeit">Wunschzeitraum für das Gespräch <span class="opt">(optional)</span></label>
+            <select id="zeit" name="Wunschzeitraum">
+              <option value="">Flexibel</option>
+              <option>Vormittags</option><option>Nachmittags</option>
+            </select>
+          </div>
+        </div>
+        <div class="actions">
+          <button type="button" class="btn-text" data-prev>Zurück</button>
+          <span class="spacer"></span>
+          <button type="button" class="btn" data-next>Weiter</button>
+        </div>
+      </section>
+
+      <!-- Schritt 3 -->
+      <section class="step" aria-labelledby="h-2" hidden>
+        <h2 id="h-2" tabindex="-1">Ihr Reisebedarf</h2>
+        <p class="lead">Damit wir uns gezielt auf das Gespräch vorbereiten können. Alle Angaben außer den Pflichtfeldern sind freiwillig und gern als Schätzung.</p>
+        <div class="grid">
+          <div class="field">
+            <label for="reisende">Regelmäßig Reisende <span class="req" aria-hidden="true">*</span></label>
+            <select id="reisende" name="Reisende" required>
+              <option value="">Bitte wählen</option>
+              <option>1 bis 5</option><option>6 bis 20</option><option>21 bis 50</option><option>51 bis 200</option><option>Mehr als 200</option>
+            </select>
+            <p class="err" id="err-reisende"></p>
+          </div>
+          <div class="field full">
+            <label for="volumen">Jährliches Reisevolumen gesamt <span class="opt">(optional, geschätzt)</span></label>
+            <select id="volumen" name="Reisevolumen_pro_Jahr">
+              <option value="">Bitte wählen</option>
+              <option>Bis 50.000 €</option><option>50.000 bis 250.000 €</option><option>250.000 bis 1 Mio. €</option><option>Über 1 Mio. €</option><option>Noch nicht bekannt</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="flug">Flugvolumen <span class="opt">(optional, geschätzt)</span></label>
+            <select id="flug" name="Flugvolumen_pro_Jahr">
+              <option value="">Bitte wählen</option>
+              <option>Bis 50 Flüge pro Jahr</option><option>51 bis 200 Flüge pro Jahr</option><option>201 bis 1.000 Flüge pro Jahr</option><option>Über 1.000 Flüge pro Jahr</option><option>Noch nicht bekannt</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="hotel">Hotelvolumen <span class="opt">(optional, geschätzt)</span></label>
+            <select id="hotel" name="Hotelvolumen_pro_Jahr">
+              <option value="">Bitte wählen</option>
+              <option>Bis 100 Übernachtungen pro Jahr</option><option>101 bis 500 Übernachtungen pro Jahr</option><option>501 bis 2.000 Übernachtungen pro Jahr</option><option>Über 2.000 Übernachtungen pro Jahr</option><option>Noch nicht bekannt</option>
+            </select>
+          </div>
+          <div class="field full">
+            <label for="aktuell">Wie buchen Sie Ihre Reisen aktuell? <span class="opt">(optional)</span></label>
+            <select id="aktuell" name="Aktuelle_Buchung">
+              <option value="">Bitte wählen</option>
+              <option>Direkt bei Airlines und Hotels</option><option>Über Online-Portale</option>
+              <option>Über ein anderes Reisebüro</option><option>Über eine interne Reisestelle</option>
+              <option>Noch keine feste Lösung</option>
+            </select>
+          </div>
+          <div class="field full">
+            <span class="legend" id="lg-int">Wofür interessieren Sie sich? <span class="opt">(Mehrfachauswahl)</span></span>
+            <div class="chips" role="group" aria-labelledby="lg-int">
+              <label class="chip"><input type="checkbox" value="Flüge"><span>Flüge</span></label>
+              <label class="chip"><input type="checkbox" value="Hotels"><span>Hotels</span></label>
+              <label class="chip"><input type="checkbox" value="Mietwagen"><span>Mietwagen</span></label>
+              <label class="chip"><input type="checkbox" value="Online-Buchungstool"><span>Online-Buchungstool</span></label>
+              <label class="chip"><input type="checkbox" value="Reisekostenmanagement"><span>Reisekostenmanagement</span></label>
+              <label class="chip"><input type="checkbox" value="Zahlungslösungen"><span>Zahlungslösungen</span></label>
+              <label class="chip"><input type="checkbox" value="Nachhaltigkeit und SAF"><span>Nachhaltigkeit und SAF</span></label>
+              <label class="chip"><input type="checkbox" value="Executive-Services"><span>Executive-Services</span></label>
+            </div>
+          </div>
+          <div class="field full">
+            <label for="msg">Ihre Nachricht <span class="opt">(optional)</span></label>
+            <textarea id="msg" name="Nachricht" maxlength="1500" placeholder="Was ist Ihnen bei Ihren Geschäftsreisen besonders wichtig?"></textarea>
+          </div>
+          <div class="field full">
+            <div class="consent demo">
+              <input id="demo" type="checkbox" name="Cytric_Demo" value="Ja">
+              <label for="demo"><strong>Kostenfreie Cytric-Demoversion testen.</strong> Ich möchte zusätzlich einen kostenfreien Demozugang zu unserem Online-Buchungstool Cytric erhalten.</label>
+            </div>
+          </div>
+          <div class="field full">
+            <div class="consent">
+              <input id="consent" type="checkbox" name="Einwilligung_Datenschutz" value="Ja" required>
+              <label for="consent">Ich habe die <a class="ul" href="https://travel-reiseagentur.de/de/datenschutz/" target="_blank" rel="noopener">Datenschutzerklärung</a> gelesen und bin damit einverstanden, dass Premium Travel meine Angaben zur Bearbeitung meiner Anfrage verarbeitet und mich zur Terminabstimmung kontaktiert. <span class="req" aria-hidden="true">*</span></label>
+            </div>
+            <p class="err" id="err-consent"></p>
+          </div>
+        </div>
+        <p class="banner" id="banner" role="alert" hidden></p>
+        <div class="actions">
+          <button type="button" class="btn-text" data-prev>Zurück</button>
+          <span class="spacer"></span>
+          <button type="submit" class="btn" id="submit">Beratungsgespräch anfragen</button>
+        </div>
+        <p class="fineprint">Ihre Angaben werden vertraulich behandelt und nur zur Bearbeitung Ihrer Anfrage verwendet.</p>
+      </section>
+    </form>
+
+    <section class="success" id="success" aria-labelledby="h-ok" hidden>
+      <div class="tick" aria-hidden="true">&#10003;</div>
+      <h2 id="h-ok" tabindex="-1">Vielen Dank<span id="s-name"></span>.</h2>
+      <p><strong>Ihre Registrierung war erfolgreich.</strong> Unser Business-Travel-Team meldet sich innerhalb von 1 bis 3 Werktagen bei Ihnen, um einen Termin für Ihr unverbindliches Beratungsgespräch abzustimmen.</p>
+      <p id="s-demo" hidden>Den Link zu Ihrer kostenfreien Cytric-Demo erhalten Sie ebenfalls innerhalb von 1 bis 3 Werktagen separat von uns.</p>
+      <p>Falls Sie in der Zwischenzeit Fragen haben, erreichen Sie uns unter <a class="ul" href="mailto:bt@travel-reiseagentur.de">bt@travel-reiseagentur.de</a> oder telefonisch unter <a class="ul nowrap" href="tel:+49404600220">+49 40 460022-0</a>.</p>
+    </section>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  // KONFIGURATION: URL der Google-Apps-Script-Web-App, z. B. 'https://script.google.com/macros/s/.../exec'
+  // Empfänger der Mail (bt@travel-reiseagentur.de) und Tabelle werden im Apps-Script-Code festgelegt.
+  var ENDPOINT = 'https://script.google.com/macros/s/AKfycbwmjdLP_t4d0DwXeMU9ccIsPr9THDTbBjCNt1pTaG9fxUgkW1UG2apt5If4yvXqP48C/exec';
+
+  var form = document.getElementById('form');
+  var steps = Array.prototype.slice.call(form.querySelectorAll('.step'));
+  var stepperItems = Array.prototype.slice.call(document.querySelectorAll('#stepper li'));
+  var banner = document.getElementById('banner');
+  var submitBtn = document.getElementById('submit');
+  var wrap = document.getElementById('wrap');
+  var current = 0;
+
+  /* ---- Kommunikation mit der umgebenden Seite ---- */
+  function postHeight() {
+    try { parent.postMessage({ type: 'lcc-form-height', height: wrap.offsetHeight }, '*'); } catch (e) {}
+  }
+  function postScroll() {
+    try { parent.postMessage({ type: 'lcc-form-scroll' }, '*'); } catch (e) {}
+  }
+  if ('ResizeObserver' in window) { new ResizeObserver(postHeight).observe(wrap); }
+  window.addEventListener('load', postHeight);
+  window.addEventListener('resize', postHeight);
+
+  /* ---- Fehleranzeige ---- */
+  function errEl(ctrl) { return document.getElementById('err-' + ctrl.id); }
+  function setError(ctrl, msg) {
+    var field = ctrl.closest('.field');
+    var e = errEl(ctrl);
+    if (field) { field.classList.add('invalid'); }
+    if (e) { e.textContent = msg; ctrl.setAttribute('aria-describedby', e.id); }
+    ctrl.setAttribute('aria-invalid', 'true');
+  }
+  function clearError(ctrl) {
+    var field = ctrl.closest('.field');
+    var e = errEl(ctrl);
+    if (field) { field.classList.remove('invalid'); }
+    if (e) { e.textContent = ''; }
+    ctrl.removeAttribute('aria-invalid');
+  }
+  function messageFor(ctrl) {
+    var v = ctrl.validity;
+    if (v.valueMissing) {
+      if (ctrl.type === 'checkbox') { return 'Bitte bestätigen Sie die Einwilligung.'; }
+      if (ctrl.tagName === 'SELECT') { return 'Bitte eine Auswahl treffen.'; }
+      return 'Bitte ausfüllen.';
+    }
+    if (v.typeMismatch) { return 'Bitte eine gültige E-Mail-Adresse angeben.'; }
+    if (v.patternMismatch) { return ctrl.getAttribute('data-msg') || 'Bitte Eingabe prüfen.'; }
+    return 'Bitte Eingabe prüfen.';
+  }
+  function isInvalid(ctrl) {
+    var textLike = ctrl.type !== 'checkbox' && ctrl.tagName !== 'SELECT';
+    if (ctrl.required && textLike && ctrl.value.trim() === '') { return 'Bitte ausfüllen.'; }
+    if (!ctrl.checkValidity()) { return messageFor(ctrl); }
+    return '';
+  }
+  function validateStep(i) {
+    var ctrls = steps[i].querySelectorAll('input[name]:not([type="hidden"]):not([name="_gotcha"]), select[name], textarea[name]');
+    var first = null;
+    Array.prototype.forEach.call(ctrls, function (c) {
+      var msg = isInvalid(c);
+      if (msg) { setError(c, msg); if (!first) { first = c; } } else { clearError(c); }
+    });
+    return first;
+  }
+
+  /* ---- Navigation ---- */
+  function showStep(i, moveFocus) {
+    current = i;
+    steps.forEach(function (s, idx) { s.hidden = idx !== i; });
+    stepperItems.forEach(function (li, idx) {
+      li.classList.toggle('done', idx < i);
+      li.classList.toggle('current', idx === i);
+      var dot = li.querySelector('.dot');
+      dot.textContent = idx < i ? '\u2713' : String(idx + 1);
+      if (idx === i) { li.setAttribute('aria-current', 'step'); } else { li.removeAttribute('aria-current'); }
+    });
+    banner.hidden = true;
+    if (moveFocus) {
+      var h = steps[i].querySelector('h2');
+      if (h) { h.focus({ preventScroll: true }); }
+      postScroll();
+    }
+    postHeight();
+  }
+  function next() {
+    var bad = validateStep(current);
+    if (bad) { bad.focus(); return; }
+    showStep(current + 1, true);
+  }
+  function prev() { if (current > 0) { showStep(current - 1, true); } }
+
+  Array.prototype.forEach.call(form.querySelectorAll('[data-next]'), function (b) { b.addEventListener('click', next); });
+  Array.prototype.forEach.call(form.querySelectorAll('[data-prev]'), function (b) { b.addEventListener('click', prev); });
+
+  // Enter in Eingabefeldern geht zum nächsten Schritt bzw. sendet im letzten Schritt ab
+  form.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && e.target.tagName === 'INPUT' && e.target.type !== 'checkbox') {
+      e.preventDefault();
+      var btn = steps[current].querySelector('[data-next], [type="submit"]');
+      if (btn) { btn.click(); }
+    }
+  });
+
+  // Fehler live zurücknehmen, sobald das Feld gültig ist
+  function liveCheck(e) {
+    var c = e.target;
+    var field = c.closest ? c.closest('.field.invalid') : null;
+    if (field && c.name && !isInvalid(c)) { clearError(c); }
+  }
+  form.addEventListener('input', liveCheck);
+  form.addEventListener('change', liveCheck);
+
+  /* ---- Absenden ---- */
+  function showBanner(text) { banner.textContent = text; banner.hidden = false; postHeight(); }
+
+  function showSuccess() {
+    var anrede = form.elements['Anrede'].value;
+    var nn = form.elements['Nachname'].value.trim();
+    var gruss = (anrede === 'Frau' || anrede === 'Herr') && nn ? ', ' + anrede + ' ' + nn : '';
+    document.getElementById('s-name').textContent = gruss;
+    document.getElementById('s-demo').hidden = !form.elements['Cytric_Demo'].checked;
+    form.hidden = true;
+    document.getElementById('stepper').hidden = true;
+    var s = document.getElementById('success');
+    s.hidden = false;
+    document.getElementById('h-ok').focus({ preventScroll: true });
+    postHeight();
+    postScroll();
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (current < steps.length - 1) { next(); return; }
+
+    for (var i = 0; i < steps.length; i++) {
+      var bad = validateStep(i);
+      if (bad) { showStep(i, true); bad.focus(); return; }
+    }
+    // Honeypot: Bots bekommen scheinbar Erfolg, es wird nichts gesendet
+    if (form.elements['_gotcha'].value) { showSuccess(); return; }
+
+    var chosen = Array.prototype.slice.call(form.querySelectorAll('.chip input:checked')).map(function (c) { return c.value; });
+    form.elements['Interessen'].value = chosen.join(', ');
+
+    // Vorschau ohne Versand: Datei mit ?demo=1 aufrufen
+    if (new URLSearchParams(window.location.search).get('demo') === '1') { showSuccess(); return; }
+
+    if (!ENDPOINT) {
+      showBanner('Konfiguration fehlt: Dem Formular ist noch kein Versandziel (ENDPOINT) zugewiesen. Es wurde nichts gesendet.');
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Wird gesendet';
+    var failText = 'Das Absenden hat leider nicht geklappt. Bitte versuchen Sie es erneut oder schreiben Sie uns direkt an bt@travel-reiseagentur.de.';
+    fetch(ENDPOINT, { method: 'POST', body: new URLSearchParams(new FormData(form)) })
+      .then(function (res) {
+        if (!res.ok) { throw new Error('http'); }
+        return res.json();
+      })
+      .then(function (data) {
+        if (data && data.result === 'success') { showSuccess(); } else { throw new Error('server'); }
+      })
+      .catch(function () { showBanner(failText); })
+      .then(function () {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Beratungsgespräch anfragen';
+      });
+  });
+
+  showStep(0, false);
+})();
+</script>
+</body>
+</html>
